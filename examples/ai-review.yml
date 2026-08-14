@@ -1,0 +1,38 @@
+# Reużywalny szablon joba AI Review.
+# Włącz w swoim projekcie:
+#
+#   include:
+#     - project: 'tools/ai-review'
+#       ref: main
+#       file: 'examples/ai-review.yml'
+#
+# Wymagane masked CI variables w projekcie docelowym:
+#   OPENCODE_API_KEY   - klucz API modelu (provider opencode)
+#   GITLAB_REVIEW_TOKEN - token GitLab z zakresem `api`
+#
+# Wszystkie zachowania można nadpisać zmiennymi `AI_REVIEW_*`.
+
+.ai-review:base:
+  image: registry.gitlab.com/<twoja-grupa>/ai-review:latest
+  stage: test
+  variables:
+    GITLAB_TOKEN: $GITLAB_REVIEW_TOKEN
+    OPENCODE_API_KEY: $OPENCODE_API_KEY
+  script:
+    - /opt/ai-review/entrypoint.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+# Wariant: pełne review z automatycznym zatwierdzaniem i czyszczeniem starych komentarzy
+ai-review:full:
+  extends: .ai-review:base
+  variables:
+    AI_REVIEW_FAIL_ON: critical
+    AI_REVIEW_APPROVE: "true"
+    AI_REVIEW_DEDUPE: "true"
+
+# Wariant: tylko informacyjnie — nigdy nie blokuje pipeline
+ai-review:informational:
+  extends: .ai-review:base
+  variables:
+    AI_REVIEW_FAIL_ON: none
