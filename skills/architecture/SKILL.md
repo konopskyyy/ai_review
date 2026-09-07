@@ -46,4 +46,4 @@ scope: [np. backend, frontend, domena]
 
 ## Reguły domyślne
 
-Poniżej jedna testowa reguła. Kolejne reguły dodawaj jako osobne pliki w `rules/`.
+Reguły domyślne żyją w `rules/`. Kolejne reguły dodawaj jako osobne pliki w `rules/`.
