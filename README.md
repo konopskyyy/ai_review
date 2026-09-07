@@ -26,10 +26,10 @@ ai_review/
 └── skills/
     ├── standards/             # skill: standardy kodowania
     │   ├── SKILL.md
-    │   └── rules/example-test-rule.md
+    │   └── rules/             # no-secrets-in-repo, php-symfony-code, migration-conventions
     └── architecture/          # skill: zasady architektury
         ├── SKILL.md
-        └── rules/example-test-rule.md
+        └── rules/
 ```
 
 ---
@@ -48,6 +48,41 @@ Możesz też zbudować lokalnie:
 ```bash
 docker build -t ai-review:dev .
 docker run --rm ai-review:dev --self-test   # test bez API
+```
+
+### GitHub (GHCR)
+
+Obraz publikowany jest też do GitHub Container Registry przez ten workflow:
+
+```
+.github/workflows/publish.yml
+```
+
+Po pushu na `main` (lub tagu `v*`) obraz ląduje w:
+
+```
+ghcr.io/<owner>/ai_review:latest
+```
+
+Projekt na GitHubie uruchamia review kontenerem z tego obrazu:
+
+```yaml
+run: |
+    docker run --rm \
+        --network=host \
+        -e GITHUB_TOKEN \
+        -e OPENCODE_API_KEY \
+        -e GITHUB_REPOSITORY \
+        -e PR_NUMBER \
+        -e GITHUB_WORKSPACE \
+        -e AI_REVIEW_MODEL \
+        -e AI_REVIEW_SKILLS \
+        -e AI_REVIEW_FAIL_ON \
+        -v "${{ github.workspace }}:${{ github.workspace }}" \
+        -v "${{ github.workspace }}/.github/scripts/ai-review.py:/opt/ai-review/github-review.py" \
+        -w "${{ github.workspace }}" \
+        ghcr.io/<owner>/ai_review:latest \
+        python3 /opt/ai-review/github-review.py
 ```
 
 ---
@@ -147,8 +182,10 @@ w obrazie (`skills/`), a **projekt może je nadpisać** własnymi plikami w repo
 .opencode/skills/architecture/rules/<regula>.md
 ```
 
-Domyślny zestaw zawiera **jedną testową regułę** (`example-test-rule.md`) w każdym
-skillu — usuń ją i dodaj własne. Format reguły:
+Domyślny zestaw reguł żyje w `rules/` (standardy: `no-secrets-in-repo`,
+`php-symfony-code`, `migration-conventions`; architektura: brak reguł domyślnych —
+dodaj własne albo dostarcz projektowe). **Projekt może je nadpisać/dodać** własnymi
+plikami w `.opencode/skills/`. Format reguły:
 
 ```md
 ---

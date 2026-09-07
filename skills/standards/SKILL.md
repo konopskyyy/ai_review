@@ -46,4 +46,4 @@ scope: [scopes, w których obowiązuje, np. php, frontend, wszyscy]
 
 ## Reguły domyślne
 
-Poniżej jedna testowa reguła. Kolejne reguły dodawaj jako osobne pliki w `rules/`.
+Reguły domyślne żyją w `rules/`. Kolejne reguły dodawaj jako osobne pliki w `rules/`.
